@@ -1,0 +1,9 @@
+# PyCharm files
+/.idea/
+/venv/
+/app/__pycache__/
+/app/handlers/__pycache__/
+/.idea/vcs.xml
+
+#configuration files
+/config/cfg.ini
