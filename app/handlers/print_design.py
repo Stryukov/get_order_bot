@@ -61,7 +61,7 @@ async def get_kind(message: types.Message, state: FSMContext):
     await OrderPrint.next()
     await state.update_data(order_kind=message.text)
     order_kind_dative = order_kind[message.text]
-    await message.answer(f'🔷 Пришлите, пожалуйста, сюда весь тест для вашей '
+    await message.answer(f'🔷 Пришлите, пожалуйста, сюда весь текст для вашей '
                          f'<b>{order_kind_dative} в одном сообщении</b>. '
                          f'Если у вашей {order_kind_dative} две стороны, то укажите это в тексте. \n '
                          f'❗️<b>Важно!</b> После изготовления макета дизайна, текст не подлежит правкам. '
@@ -131,10 +131,10 @@ async def order_finish(message: types.Message, state: FSMContext):
     order = await state.get_data()
     user = get_user_info(message)
     await bot.send_message(config.bot.admin_group, f'🔷 <b>Новый заказ!</b> '
-                                                   f'\nКлиент: {user.fullname}(@{user.uname}) \n'
+                                                   f'\nКлиент: {user.fullname} (@{user.uname}) \n'
                                                    f'Контактный номер: {order["order_phone"]}'
                                                    f'\n{order["order_name"]}: '
-                                                   f'{order["order_kind"]} {order["order_size"]}'
+                                                   f'{order["order_kind"]} / {order["order_size"]}'
                                                    f'\nТекст макета: {order["order_text"]}',
                            parse_mode=types.ParseMode.HTML)
     if "order_docs" in order.keys():
@@ -152,12 +152,6 @@ async def order_finish(message: types.Message, state: FSMContext):
     await message.answer('Спасибо за ваш заказ! Мы отнесемся к нему креативно!')
     await state.finish()
     await cmd_welcome(message)
-
-
-def add_buttons(buttons: list, keyboard: types.ReplyKeyboardMarkup):
-    for button in buttons:
-        keyboard.add(button)
-    return keyboard
 
 
 def register_handlers_print_design(dp: Dispatcher):

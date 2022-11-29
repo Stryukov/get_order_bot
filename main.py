@@ -6,6 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from app.config import load_config
 from app.handlers.common import register_handlers_common
 from app.handlers.print_design import register_handlers_print_design
+from app.handlers.web_design import register_handlers_web_design
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ async def main():
     dp = Dispatcher(bot, storage=MemoryStorage())
     register_handlers_common(dp, config)
     register_handlers_print_design(dp)
+    register_handlers_web_design(dp)
     await set_commands(bot)
     await dp.start_polling()
 
