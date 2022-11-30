@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import InputFile, Message
+from aiogram.types import InputMediaPhoto
 from aiogram.dispatcher.filters import Text, IDFilter
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -143,8 +143,13 @@ async def order_finish(message: types.Message, state: FSMContext):
                 await bot.send_document(config.bot.admin_group, doc)
     if "order_photo" in order.keys():
         if order["order_photo"]:
-            for photo in order['order_photo']:
-                await bot.send_photo(config.bot.admin_group, photo)
+            if len(order['order_photo']) > 1:
+                media = []
+                for photo in order['order_photo']:
+                    media.append(InputMediaPhoto(photo))
+                await bot.send_media_group(config.bot.admin_group, media)
+            else:
+                await bot.send_photo(config.bot.admin_group, order['order_photo'][0])
     if "order_voice" in order.keys():
         if order["order_voice"]:
             for voice in order['order_voice']:

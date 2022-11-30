@@ -7,7 +7,8 @@ from app.config import load_config
 from app.handlers.common import register_handlers_common
 from app.handlers.print_design import register_handlers_print_design
 from app.handlers.web_design import register_handlers_web_design
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from app.handlers.copywriting import register_handlers_copywriting
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ async def main():
     register_handlers_common(dp, config)
     register_handlers_print_design(dp)
     register_handlers_web_design(dp)
+    register_handlers_copywriting(dp)
     await set_commands(bot)
     await dp.start_polling()
 

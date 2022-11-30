@@ -1,15 +1,8 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import InputFile, Message
 from aiogram.dispatcher.filters import Text, IDFilter
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.utils.deep_linking import get_start_link, decode_payload
-from app.config import load_config
-# from app.handlers.SQLighter import SQLighter
 from dataclasses import dataclass
-import os
-import json
-# import requests
 
 
 @dataclass
