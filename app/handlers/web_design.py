@@ -102,13 +102,19 @@ async def get_info(message: types.Message, state: FSMContext):
 
 async def welcome_voice(message: types.Message, state: FSMContext):
     await OrderWeb.next()
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add("Отправить заявку")
     await message.answer('🔷 Если вас есть <b>важные детали</b> и нюансы, то '
                          '<b>наговорите нам их сюда в виде аудио</b>, '
-                         'нам будет приятно вас услышать.🌸 '
-                         'Потом нажмите кнопку "Отправить заявку"'
-                         , reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+                         'нам будет приятно вас услышать.🌸 ',
+                         reply_markup=types.ReplyKeyboardRemove(),
+                         parse_mode=types.ParseMode.HTML)
+    button = types.InlineKeyboardButton(
+        text="Отправить заявку",
+        callback_data="send_order",
+    )
+    keyboard = types.InlineKeyboardMarkup().add(button)
+    await message.answer('Или нажмите кнопку "Отправить заявку"',
+                         reply_markup=keyboard,
+                         parse_mode=types.ParseMode.HTML)
 
 
 async def get_voice(message: types.Message, state: FSMContext):
@@ -116,12 +122,22 @@ async def get_voice(message: types.Message, state: FSMContext):
         order_data['voice'].append(message.voice.file_id)
         await state.update_data(order_voice=order_data['voice'])
     else:
-        await message.answer('🔷 Пришлите голосовое сообщение или нажмите кнопку "Отправить заявку".')
+        await message.answer('🔷 Пришлите голосовое сообщение',
+                             reply_markup=types.ReplyKeyboardRemove(),
+                             parse_mode=types.ParseMode.HTML)
+        button = types.InlineKeyboardButton(
+            text="Отправить заявку",
+            callback_data="send_order",
+        )
+        keyboard = types.InlineKeyboardMarkup().add(button)
+        await message.answer('Или нажмите кнопку "Отправить заявку"',
+                             reply_markup=keyboard,
+                             parse_mode=types.ParseMode.HTML)
 
 
-async def order_finish(message: types.Message, state: FSMContext):
+async def order_finish(call: types.CallbackQuery, state: FSMContext):
     order = await state.get_data()
-    user = get_user_info(message)
+    user = get_user_info(call)
     await bot.send_message(config.bot.admin_group, f'🔷 <b>Новый заказ!</b> '
                                                    f'\nКлиент: {user.fullname} (@{user.uname}) \n'
                                                    f'Контактный номер: {order["order_phone"]}'
@@ -146,9 +162,10 @@ async def order_finish(message: types.Message, state: FSMContext):
         if order["order_voice"]:
             for voice in order['order_voice']:
                 await bot.send_voice(config.bot.admin_group, voice)
-    await message.answer('Спасибо за ваш заказ! Мы отнесемся к нему креативно!')
+    await call.message.answer('Спасибо за ваш заказ! Мы отнесемся к нему креативно!')
     await state.finish()
-    await cmd_welcome(message)
+    await call.answer()
+    await cmd_welcome(call.message)
 
 
 def register_handlers_web_design(dp: Dispatcher):
@@ -161,3 +178,6 @@ def register_handlers_web_design(dp: Dispatcher):
     dp.register_message_handler(get_info, state=OrderWeb.waiting_info, content_types=types.ContentTypes.ANY)
     dp.register_message_handler(order_finish, Text(equals="Отправить заявку"), state=OrderWeb.waiting_voice)
     dp.register_message_handler(get_voice, state=OrderWeb.waiting_voice, content_types=types.ContentTypes.ANY)
+    dp.register_callback_query_handler(
+        order_finish, Text(startswith="send_order"), state="*"
+    )
